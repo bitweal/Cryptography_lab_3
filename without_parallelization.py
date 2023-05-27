@@ -1,5 +1,6 @@
-import math
+﻿import math
 import random
+import numpy as np
 
 def is_prime(num):
     if num < 2:
@@ -19,8 +20,8 @@ def build_factor_base(n, c=3.38):
 
 def is_smooth(alpha, S):
     k = random.randint(0, n-1)
-    a = alpha**k % n
-    power = []
+    a = pow(alpha, k, n)
+    power = [k]
     for p in S:
         c_power = 0
         while a % p == 0:
@@ -28,12 +29,28 @@ def is_smooth(alpha, S):
             c_power += 1
         power.append(c_power)
 
-    if all(value == 0 for value in power): 
+    if all(value == 0 for value in power[1:]): 
         return None
     else:
         return power
+  
+
+def find_solutions(equations):
+    equations_array = np.array(equations)    
+    coefficients = equations_array[:, 1:]
+    constants = equations_array[:, 0]  
+    num_equations, num_variables = coefficients.shape
     
-def build_linear_equations(alpha, n, S):
+    if num_equations < num_variables:
+        return None
+   
+    try:
+        solution = np.linalg.lstsq(coefficients, constants, rcond=None)[0]
+        return solution.tolist()
+    except np.linalg.LinAlgError:
+        return None
+
+def solution_linear_equations(alpha, n, S):
     linear_equations = []
     for c in range(len(S)+15):
         smooth_number = is_smooth(alpha, S)
@@ -41,12 +58,17 @@ def build_linear_equations(alpha, n, S):
             continue
         else:
             linear_equations.append(smooth_number)
-    return linear_equations
-    
+            print(linear_equations)
+            solution = find_solutions(linear_equations)
+            if type(solution) == list:
+                break
+               
+    return solution   
 
 alpha = int(input('Enter alpha: '))
 beta = int(input('Enter beta: '))
 n = int(input('Enter n: '))
 S = build_factor_base(n)
-equation = build_linear_equations(alpha, n, S)
+equation = solution_linear_equations(alpha, n, S)
+
 print(equation)
