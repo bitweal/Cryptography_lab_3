@@ -30,7 +30,7 @@ def is_smooth(alpha, S):
             c_power += 1
         power.append(c_power)
 
-    if all(value == 0 for value in power[1:]): 
+    if all(value == 0 for value in power[1:]) or a > 1: 
         return None
     else:
         return power
@@ -67,7 +67,7 @@ def solution_linear_equations(alpha, n, S):
             #linear_equations = [[1,1,0,1,0],[2,1,1,0,0],[6,2,0,0,1],[7,0,2,1,0]]
             print(linear_equations)
             solution = find_solutions(linear_equations, n-1)
-            print(solution)
+            #print(solution)
             if type(solution) == list:
                 break
                
@@ -88,7 +88,7 @@ def calculate_log(alpha, beta, n, S, equation):
             c_power += 1
         power.append(c_power)
 
-    if all(value == 0 for value in power) or number != 1: 
+    if all(value == 0 for value in power) or number > 1: 
         return None
     print(power)
     result = 0
