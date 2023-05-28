@@ -1,6 +1,7 @@
 ﻿import math
 import random
 import numpy as np
+from sympy import symbols, Eq, solve
 
 def is_prime(num):
     if num < 2:
@@ -33,19 +34,24 @@ def is_smooth(alpha, S):
         return None
     else:
         return power
-  
 
-def find_solutions(equations):
+def find_solutions(equations, n):  
     equations_array = np.array(equations)    
     coefficients = equations_array[:, 1:]
     constants = equations_array[:, 0]  
-    num_equations, num_variables = coefficients.shape
-    
-    if num_equations < num_variables:
+
+    if np.any(np.all(equations_array == 0, axis=0)):
         return None
+
+    zero_columns = np.where(np.all(coefficients == 0, axis=0))[0]  
+    if len(zero_columns) > 0:
+        coefficients = np.delete(coefficients, zero_columns, axis=1)
+        num_variables = coefficients.shape[1]
    
     try:
-        solution = np.linalg.lstsq(coefficients, constants, rcond=None)[0]
+        solution = np.linalg.lstsq(coefficients, constants, rcond=-1)[0]
+        #print(solution)
+        solution = np.remainder(solution, n)
         return solution.tolist()
     except np.linalg.LinAlgError:
         return None
@@ -57,18 +63,47 @@ def solution_linear_equations(alpha, n, S):
         if smooth_number == None:
             continue
         else:
-            linear_equations.append(smooth_number)
+            linear_equations.append(smooth_number)           
+            #linear_equations = [[1,1,0,1,0],[2,1,1,0,0],[6,2,0,0,1],[7,0,2,1,0]]
             print(linear_equations)
-            solution = find_solutions(linear_equations)
+            solution = find_solutions(linear_equations, n-1)
+            print(solution)
             if type(solution) == list:
                 break
                
-    return solution   
+    return solution
 
+def calculate_log(alpha, beta, n, S, equation):
+    l = random.randint(0, n-1)
+    #equation = [30,18,17,38]
+    #l = 2
+    number = beta * pow(alpha, l) % n
+    print(l)
+    print(number)
+    power = []
+    for p in S:
+        c_power = 0
+        while number % p == 0:
+            number //= p        
+            c_power += 1
+        power.append(c_power)
+
+    if all(value == 0 for value in power) or number != 1: 
+        return None
+    print(power)
+    result = 0
+    for i in range(len(S)):
+        if power[i] != 0:
+            result += (power[i] * equation[i]) % (n-1)
+
+    return (result - l) % (n-1)
+    
 alpha = int(input('Enter alpha: '))
 beta = int(input('Enter beta: '))
 n = int(input('Enter n: '))
 S = build_factor_base(n)
+print(S)
 equation = solution_linear_equations(alpha, n, S)
+result = calculate_log(alpha, beta, n, S, equation)
 
-print(equation)
+print(result)
