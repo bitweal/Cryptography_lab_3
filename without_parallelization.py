@@ -39,18 +39,9 @@ def find_solutions(equations, n):
     equations_array = np.array(equations)    
     coefficients = equations_array[:, 1:]
     constants = equations_array[:, 0]  
-
-    if np.any(np.all(equations_array == 0, axis=0)):
-        return None
-
-    zero_columns = np.where(np.all(coefficients == 0, axis=0))[0]  
-    if len(zero_columns) > 0:
-        coefficients = np.delete(coefficients, zero_columns, axis=1)
-        num_variables = coefficients.shape[1]
    
     try:
-        solution = np.linalg.lstsq(coefficients, constants, rcond=-1)[0]
-        #print(solution)
+        solution = np.linalg.solve(coefficients, constants)
         solution = np.remainder(solution, n)
         return solution.tolist()
     except np.linalg.LinAlgError:
@@ -67,7 +58,6 @@ def solution_linear_equations(alpha, n, S):
             #linear_equations = [[1,1,0,1,0],[2,1,1,0,0],[6,2,0,0,1],[7,0,2,1,0]]
             print(linear_equations)
             solution = find_solutions(linear_equations, n-1)
-            #print(solution)
             if type(solution) == list:
                 break
                
@@ -78,8 +68,6 @@ def calculate_log(alpha, beta, n, S, equation):
     #equation = [30,18,17,38]
     #l = 2
     number = beta * pow(alpha, l) % n
-    print(l)
-    print(number)
     power = []
     for p in S:
         c_power = 0
@@ -104,6 +92,11 @@ n = int(input('Enter n: '))
 S = build_factor_base(n)
 print(S)
 equation = solution_linear_equations(alpha, n, S)
-result = calculate_log(alpha, beta, n, S, equation)
-
-print(result)
+print(equation)
+while True:
+    result = calculate_log(alpha, beta, n, S, equation)
+    if result is None:
+        continue
+    else:
+        print(result)
+        break
