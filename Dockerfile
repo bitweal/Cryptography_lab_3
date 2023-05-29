@@ -1,5 +1,6 @@
 FROM python:3.9
 
+RUN pip install numpy
 RUN mkdir /usr/src/app/ 
 WORKDIR /usr/src/app/
 
