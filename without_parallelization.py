@@ -1,4 +1,5 @@
-﻿import math
+﻿from itertools import combinations
+import math
 import random
 import numpy as np
 from sympy import symbols, Eq, solve
@@ -63,7 +64,6 @@ def find_solutions(equations, n):
             
     try:
         solution = np.linalg.solve(coefficients, constants)
-        print(solution)
         if np.allclose(np.dot(coefficients, solution), constants) == False \
             or check_floating_point_numbers(solution) :
             return None
@@ -72,32 +72,50 @@ def find_solutions(equations, n):
     except np.linalg.LinAlgError:
         return None
 
+def generate_combinations(matrix, row):
+    combinations = []
+    n = len(matrix) 
+    for i in range(n):
+        new_matrix = []
+        for idx in range(n):
+            if idx == i:
+                new_matrix.append(row[:])
+            else:
+                new_matrix.append(matrix[idx])
+
+        combinations.append(new_matrix)
+
+    return combinations
+
 def solution_linear_equations(alpha, n, S):
     linear_equations = []
     solution = []
     check = 0
-    for c in range(len(S)+1000):
-        print('c: ', c)
+    c = 0
+    while c in range(len(S)+15):
         smooth_number = is_smooth(alpha, S)
         if smooth_number == None or smooth_number in linear_equations:
             continue
         else:
-            linear_equations.append(smooth_number)
-            check += 1
-            #linear_equations = [[1,1,0,1,0],[2,1,1,0,0],[6,2,0,0,1],[7,0,2,1,0]]
-            if check < 4:
+            if check < len(S):
+                check += 1
+                linear_equations.append(smooth_number)
+                c += 1
                 continue
-            print(linear_equations)
-            solution = find_solutions(linear_equations, n-1)
-            print('its solution: ',solution)
-            if type(solution) == list:
-                break
+            elif check == len(S):
+                check += 1
+                c += 1
+                solution = find_solutions(linear_equations, n-1)
             else:
-                linear_equations = []
-                check = 0
-                continue
-               
-    return solution
+                c += 1
+                combo = generate_combinations(linear_equations, smooth_number)
+                for i in combo:
+                    solution = find_solutions(i, n-1)
+                    if type(solution) == list:
+                        return solution
+            if type(solution) == list:
+                return solution
+    return None
 
 def calculate_log(alpha, beta, n, S, equation):
     l = random.randint(0, n-1)
@@ -109,29 +127,27 @@ def calculate_log(alpha, beta, n, S, equation):
             number //= p        
             c_power += 1
         power.append(c_power)
-
     if all(value == 0 for value in power) or number > 1: 
         return None
-    print(power)
     result = 0
     for i in range(len(S)):
         if power[i] != 0:
             result += (power[i] * equation[i]) % (n-1)
 
-    return (result - l) % (n-1)
+    return int((result - l) % (n-1))
     
 alpha = int(input('Enter alpha: '))
 beta = int(input('Enter beta: '))
 n = int(input('Enter n: '))
 S = build_factor_base(n)
-print(S)
 equation = solution_linear_equations(alpha, n, S)
-#print(equation)
-
-while True:
-    result = calculate_log(alpha, beta, n, S, equation)
-    if result is None:
-        continue
-    else:
-        print(result)
-        break
+if equation == None:
+    print("I can't found solution")
+else:
+    while True:
+        result = calculate_log(alpha, beta, n, S, equation)
+        if result is None:
+            continue
+        else:
+            print(result)
+            break
