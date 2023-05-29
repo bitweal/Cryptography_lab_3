@@ -35,13 +35,38 @@ def is_smooth(alpha, S):
     else:
         return power
 
+def check_floating_point_numbers(lst):
+    found_floating_point = False
+
+    for item in lst:
+        if isinstance(item, float) and not item.is_integer():
+            found_floating_point = True
+            break
+
+    if found_floating_point:
+        return True
+    else:
+        return False
+
 def find_solutions(equations, n):  
     equations_array = np.array(equations)    
     coefficients = equations_array[:, 1:]
     constants = equations_array[:, 0]  
-   
+
+    for j in range(1,len(equations[0])):
+        not_zero = False
+        for i in range(len(equations)):
+            if equations[i][j] != 0:
+                not_zero = True
+        if not_zero  == False:
+            return None
+            
     try:
         solution = np.linalg.solve(coefficients, constants)
+        print(solution)
+        if np.allclose(np.dot(coefficients, solution), constants) == False \
+            or check_floating_point_numbers(solution) :
+            return None
         solution = np.remainder(solution, n)
         return solution.tolist()
     except np.linalg.LinAlgError:
@@ -49,24 +74,33 @@ def find_solutions(equations, n):
 
 def solution_linear_equations(alpha, n, S):
     linear_equations = []
-    for c in range(len(S)+15):
+    solution = []
+    check = 0
+    for c in range(len(S)+1000):
+        print('c: ', c)
         smooth_number = is_smooth(alpha, S)
-        if smooth_number == None:
+        if smooth_number == None or smooth_number in linear_equations:
             continue
         else:
-            linear_equations.append(smooth_number)           
+            linear_equations.append(smooth_number)
+            check += 1
             #linear_equations = [[1,1,0,1,0],[2,1,1,0,0],[6,2,0,0,1],[7,0,2,1,0]]
+            if check < 4:
+                continue
             print(linear_equations)
             solution = find_solutions(linear_equations, n-1)
+            print('its solution: ',solution)
             if type(solution) == list:
                 break
+            else:
+                linear_equations = []
+                check = 0
+                continue
                
     return solution
 
 def calculate_log(alpha, beta, n, S, equation):
     l = random.randint(0, n-1)
-    #equation = [30,18,17,38]
-    #l = 2
     number = beta * pow(alpha, l) % n
     power = []
     for p in S:
@@ -92,7 +126,8 @@ n = int(input('Enter n: '))
 S = build_factor_base(n)
 print(S)
 equation = solution_linear_equations(alpha, n, S)
-print(equation)
+#print(equation)
+
 while True:
     result = calculate_log(alpha, beta, n, S, equation)
     if result is None:
