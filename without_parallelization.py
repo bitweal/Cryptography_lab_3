@@ -2,7 +2,17 @@
 import math
 import random
 import numpy as np
-from sympy import symbols, Eq, solve
+import time
+
+def timeit_decorator(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print("The function {} was executed in {:.2f} seconds".format(func.__name__, execution_time))
+        return result
+    return wrapper
 
 def is_prime(num):
     if num < 2:
@@ -20,7 +30,7 @@ def build_factor_base(n, c=3.38):
             factor_base.append(p)
     return factor_base
 
-def is_smooth(alpha, S):
+def is_smooth(alpha, S, n):
     k = random.randint(0, n-1)
     a = pow(alpha, k, n)
     power = [k]
@@ -93,7 +103,7 @@ def solution_linear_equations(alpha, n, S):
     check = 0
     c = 0
     while c in range(len(S)+15):
-        smooth_number = is_smooth(alpha, S)
+        smooth_number = is_smooth(alpha, S, n)
         if smooth_number == None or smooth_number in linear_equations:
             continue
         else:
@@ -135,19 +145,22 @@ def calculate_log(alpha, beta, n, S, equation):
             result += (power[i] * equation[i]) % (n-1)
 
     return int((result - l) % (n-1))
-    
-alpha = int(input('Enter alpha: '))
-beta = int(input('Enter beta: '))
-n = int(input('Enter n: '))
-S = build_factor_base(n)
-equation = solution_linear_equations(alpha, n, S)
-if equation == None:
-    print("I can't found solution")
-else:
-    while True:
-        result = calculate_log(alpha, beta, n, S, equation)
-        if result is None:
-            continue
-        else:
-            print(result)
-            break
+
+@timeit_decorator
+def start():    
+    alpha = int(input('Enter alpha: '))
+    beta = int(input('Enter beta: '))
+    n = int(input('Enter n: '))
+    S = build_factor_base(n)
+    equation = solution_linear_equations(alpha, n, S)
+    if equation == None:
+        print("I can't found solution")
+    else:
+        while True:
+            result = calculate_log(alpha, beta, n, S, equation)
+            if result is None:
+                continue
+            else:
+                return result
+
+print(start())
