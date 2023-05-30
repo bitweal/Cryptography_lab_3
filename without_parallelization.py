@@ -124,7 +124,6 @@ def solution_linear_equations(alpha, n, S):
                     pre_coefficients.append(pre_coe)
                     pre_constants.append(pre_con)   
                     if type(solution) == list:
-                        print(solution)
                         return solution
     return None
 
@@ -148,6 +147,7 @@ def calculate_log(alpha, beta, n, S, equation):
 
     return int((result - l) % (n-1))
 
+@timeit_decorator
 def start():    
     alpha = int(input('Enter alpha: '))
     beta = int(input('Enter beta: '))

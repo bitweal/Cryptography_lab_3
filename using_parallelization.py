@@ -37,7 +37,6 @@ alpha = int(input('Enter alpha: '))
 beta = int(input('Enter beta: '))
 n = int(input('Enter n: '))
 S = build_factor_base(n)
-print(S)
 
 equation = main()
 
