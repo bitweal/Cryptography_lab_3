@@ -2,7 +2,7 @@
 from without_parallelization import build_factor_base, solution_linear_equations, calculate_log, timeit_decorator
 
 @timeit_decorator
-def main():
+def main(S):
     threads = []
     lock = threading.Lock()
     result_found = threading.Event()
@@ -33,20 +33,27 @@ def main():
 
     return result
 
+def start(c=3.38):      
+    S = build_factor_base(n,c)
+    equation = main(S)
+    if equation == None:
+        return "I can't found solution"
+    else:
+        while True:
+            result = calculate_log(alpha, beta, n, S, equation)
+            if result is None:
+                continue
+            else:
+                return result
+
+
 alpha = int(input('Enter alpha: '))
 beta = int(input('Enter beta: '))
 n = int(input('Enter n: '))
-S = build_factor_base(n)
+fun = start()
+c = 3.38 
+while type(fun) is not int and c <= 7:
+    c += 0.1
+    fun = start(c)
 
-equation = main()
-
-if equation == None:
-    print("I can't found solution")
-else:
-    while True:
-        result = calculate_log(alpha, beta, n, S, equation)
-        if result is None:
-            continue
-        else:
-            print(result)
-            break
+print(fun)
