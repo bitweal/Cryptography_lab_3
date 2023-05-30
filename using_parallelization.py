@@ -1,6 +1,7 @@
 ﻿import threading
-from without_parallelization import build_factor_base, solution_linear_equations, calculate_log
+from without_parallelization import build_factor_base, solution_linear_equations, calculate_log, timeit_decorator
 
+@timeit_decorator
 def main():
     threads = []
     lock = threading.Lock()
@@ -20,7 +21,7 @@ def main():
 
         lock.release()
 
-    for _ in range(4):
+    for _ in range(6):
         thread = threading.Thread(target=thread_function)
         threads.append(thread)
         thread.start()
@@ -35,7 +36,7 @@ def main():
 alpha = int(input('Enter alpha: '))
 beta = int(input('Enter beta: '))
 n = int(input('Enter n: '))
-S = build_factor_base(n, 100)
+S = build_factor_base(n)
 print(S)
 
 equation = main()
