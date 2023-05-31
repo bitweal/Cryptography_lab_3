@@ -17,8 +17,11 @@ def main(S):
         processes.append(process)
         process.start()
 
+    result_found.wait()
     result = result_queue.get()
-    result_found.set()
+
+    for process in processes:
+        process.terminate()
 
     for process in processes:
         process.join()
